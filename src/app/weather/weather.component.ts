@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { WeatherService } from './weather.service';
-import { BehaviorSubject, Observable, concat, of, toArray } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, concat, of, switchMap, throwError, toArray } from 'rxjs';
+import { Weather } from './weather';
 
-type Coords = {
+type Coordinates = {
   longitude: number,
   latitude: number
 } | null
@@ -13,40 +14,67 @@ type Coords = {
   styleUrls: ['./weather.component.css']
 })
 export class WeatherComponent implements OnInit {
-  private coords: BehaviorSubject<Coords>;
+  public weathers: Array<Weather> = [];
   constructor(
     private weatherService: WeatherService,
-  ) {
-    this.coords = new BehaviorSubject<Coords>(null);
+  ) {}
+
+  getUserCoordinates(): Observable<Coordinates> {
+    return new Observable<Coordinates>(observer => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            observer.next(position.coords);
+            observer.complete();
+          },
+          (error) => {
+            observer.error(error);
+          }
+        );
+      } else {
+        observer.error('Geolocation is not supported by this browser.');
+      }
+    });
   }
 
-  getLocation(): void {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position)=>{
-          const longitude = position.coords.longitude;
-          const latitude = position.coords.latitude;
-          this.coords.next({longitude, latitude});
-        });
-    } else {
-      console.log("No support for geolocation")
-    }
+  getUserWeatherForecast() {
+    this.getUserCoordinates()
+      .pipe(
+        switchMap(coords => {
+          if(coords) {
+            return this.weatherService.get24HourForecast({
+              latitude: coords.latitude,
+              longitude: coords.longitude,
+              temperature_2m: true,
+              relativehumidity_2m: true,
+              rain: true,
+              cloudcover: true
+            })
+          }
+          return of(null)
+        }),
+        catchError(error => {
+          console.error('Error fetching weather data:', error);
+          return throwError(error);
+        })
+      )
+      .subscribe(weatherData => {
+        if(weatherData) {
+          this.weathers = weatherData.hourly.time.map((time, index) => {
+            return {
+              atHour: new Date(time).toLocaleTimeString(),
+              weatherType: weatherData.hourly.rain[index] > 0 ? 'rain' : weatherData.hourly.cloudcover[index] > 50 ? 'cloudy' : 'sunny',
+              temperature: weatherData.hourly.temperature_2m[index],
+              humidity: weatherData.hourly.relativehumidity_2m[index],
+              cloudcover: weatherData.hourly.cloudcover[index]
+            }
+          });
+        }
+      });
   }
 
   ngOnInit(): void {
-    this.getLocation();
-
-    const stream = concat([this.coords])
-
-    // if (coords) {
-    //   console.log(coords);
-    //   this.weatherService.getLocationKey(coords.longitude, coords.latitude)
-    //     .subscribe((result) => {
-    //       const locationKey = result.Key;
-    //       this.weatherService.get24HourForecast(locationKey)
-    //         .subscribe((result) => {
-    //           console.log(result);
-    //         });
-    //     });
-    //   }
+    this.getUserWeatherForecast();
   }
 }
+

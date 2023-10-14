@@ -1,1 +1,18 @@
-<p>weather works!</p>
+<table class="weather-table">
+  <thead>
+    <tr>
+      <th>Time</th>
+      <th>Weather</th>
+      <th>Temperature</th>
+      <th>Relative Humidity</th>
+      <th>Cloudcover</th>
+    </tr>
+  <tbody>
+    <tr *ngFor="let weather of weathers">
+      <td>{{weather.atHour}}</td>
+      <td>{{weather.weatherType}}</td>
+      <td>{{weather.temperature}}</td>
+      <td>{{weather.humidity}}</td>
+      <td>{{weather.cloudcover}}</td>
+  </tbody>
+</table>
