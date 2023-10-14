@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { WeatherService } from './weather.service';
-import { BehaviorSubject, Observable, catchError, concat, of, switchMap, throwError, toArray } from 'rxjs';
+import { Observable, catchError, of, switchMap, throwError } from 'rxjs';
 import { Weather } from './weather';
 
 type Coordinates = {
