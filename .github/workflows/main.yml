@@ -40,15 +40,15 @@ jobs:
         password: ${{ env.DOCKERHUB_TOKEN }}
     - name: Set permissions for private key
       run: |
-        echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
-        chmod 600 key.pem
+        echo "${{ env.AWS_PRIVATE_KEY }}" > todo-angular.pem
+        chmod 600 todo-angular.pem
     - name: Pull Docker image
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker pull miliracle/todo-angular:latest'
+        ssh -o StrictHostKeyChecking=no -i todo-angular.pem ec2-user@ec2-3-83-250-217.compute-1.amazonaws.com 'sudo docker pull miliracle/todo-angular:latest'
     - name: Stop running container
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker stop cddemo || true'
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker rm cddemo || true'
+        ssh -o StrictHostKeyChecking=no -i todo-angular.pem ec2-user@ec2-3-83-250-217.compute-1.amazonaws.com 'sudo docker stop cddemo || true'
+        ssh -o StrictHostKeyChecking=no -i todo-angular.pem ec2-user@ec2-3-83-250-217.compute-1.amazonaws.com 'sudo docker rm cddemo || true'
     - name: Run new container
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker run -d --name cddemo -p 80:3000 miliracle/todo-angular:latest'
+        ssh -o StrictHostKeyChecking=no -i todo-angular.pem ec2-user@ec2-3-83-250-217.compute-1.amazonaws.com 'sudo docker run -d --name cddemo -p 80:3000 miliracle/todo-angular:latest'
