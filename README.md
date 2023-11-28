@@ -1,5 +1,13 @@
 # TodoAngular
 
+## Build with Docker
+Run and access: `http://localhost:8080/`
+```
+  docker build -t todo-angular .
+  docker run -d -p 8080:80 todo-angular
+```
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.6.
 
 ## Development server
