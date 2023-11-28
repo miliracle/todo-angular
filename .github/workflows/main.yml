@@ -51,4 +51,4 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i todo-angular.pem ec2-user@ec2-3-83-250-217.compute-1.amazonaws.com 'sudo docker rm cddemo || true'
     - name: Run new container
       run: |
-        ssh -o StrictHostKeyChecking=no -i todo-angular.pem ec2-user@ec2-3-83-250-217.compute-1.amazonaws.com 'sudo docker run -d --name cddemo -p 80:3000 miliracle/todo-angular:latest'
+        ssh -o StrictHostKeyChecking=no -i todo-angular.pem ec2-user@ec2-3-83-250-217.compute-1.amazonaws.com 'sudo docker run -d --name cddemo -p 80:80 miliracle/todo-angular:latest'
